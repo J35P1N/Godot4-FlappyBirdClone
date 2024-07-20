@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://chpvsgknsa1me"]
+
+[ext_resource type="Script" path="res://scripts/BackgroundContainer.gd" id="1_ncu1q"]
+[ext_resource type="Texture2D" uid="uid://dxv4bt2663olv" path="res://images/Background.png" id="2_7j3tq"]
+
+[node name="Main" type="Node"]
+
+[node name="BackgroundContainer" type="Node2D" parent="."]
+position = Vector2(2.08165e-12, 480)
+script = ExtResource("1_ncu1q")
+
+[node name="FirstFrame" type="Sprite2D" parent="BackgroundContainer"]
+scale = Vector2(2, 2)
+texture = ExtResource("2_7j3tq")
+offset = Vector2(400, 2.08165e-12)
+
+[node name="SecondFrame" type="Sprite2D" parent="BackgroundContainer"]
+position = Vector2(1600, 2.08165e-12)
+scale = Vector2(2, 2)
+texture = ExtResource("2_7j3tq")
+offset = Vector2(400, 2.08165e-12)
