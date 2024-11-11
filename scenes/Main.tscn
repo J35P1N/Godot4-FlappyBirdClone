@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://chpvsgknsa1me"]
+[gd_scene load_steps=19 format=3 uid="uid://chpvsgknsa1me"]
 
 [ext_resource type="Script" path="res://scripts/BackgroundContainer.gd" id="1_ncu1q"]
 [ext_resource type="Script" path="res://scenes/Main.gd" id="1_pyh0x"]
@@ -6,9 +6,20 @@
 [ext_resource type="Script" path="res://scripts/Player.gd" id="4_02q8t"]
 [ext_resource type="Texture2D" uid="uid://d3ew4jivhcl62" path="res://images/Player.png" id="4_rjvuy"]
 [ext_resource type="FontFile" uid="uid://cwqe1cgmwpg45" path="res://fonts/kenvector_future.ttf" id="6_slmc6"]
+[ext_resource type="PackedScene" uid="uid://cw7ohs0um4j4f" path="res://scenes/obstacle.tscn" id="7_6f0n5"]
+[ext_resource type="PackedScene" uid="uid://dw00l4m0otw0f" path="res://scenes/coin.tscn" id="8_guqiw"]
+[ext_resource type="Texture2D" uid="uid://epjr01ukqmet" path="res://images/Circle.png" id="8_vudkh"]
+[ext_resource type="AudioStream" uid="uid://42ypdirfr5jn" path="res://audio/sfx/CoinCollected.ogg" id="9_e2617"]
+[ext_resource type="Script" path="res://scripts/game_over.gd" id="9_xqy0q"]
+[ext_resource type="AudioStream" uid="uid://dqu1oaxa0d6lu" path="res://audio/sfx/GameOver.ogg" id="10_ccs64"]
+[ext_resource type="AudioStream" uid="uid://8nouhljkhete" path="res://audio/bgm/Music.wav" id="13_ouvny"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_svnoq"]
 radius = 35.0143
+
+[sub_resource type="Curve" id="Curve_m6a0w"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.994382, 0.032967), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ky72c"]
 size = Vector2(1600, 20)
@@ -21,6 +32,12 @@ bg_color = Color(0.164706, 0.164706, 0.164706, 1)
 
 [node name="Main" type="Node"]
 script = ExtResource("1_pyh0x")
+obstacle = ExtResource("7_6f0n5")
+coin = ExtResource("8_guqiw")
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 0.375
+autostart = true
 
 [node name="BackgroundContainer" type="Node2D" parent="." groups=["DynamicObject"]]
 position = Vector2(2.08165e-12, 480)
@@ -37,11 +54,13 @@ scale = Vector2(2, 2)
 texture = ExtResource("2_7j3tq")
 offset = Vector2(400, 2.08165e-12)
 
-[node name="Player" type="RigidBody2D" parent="."]
+[node name="Player" type="RigidBody2D" parent="." groups=["Player"]]
 position = Vector2(160, 480)
 mass = 2.2
 gravity_scale = 1.6
 continuous_cd = 1
+contact_monitor = true
+max_contacts_reported = 10
 script = ExtResource("4_02q8t")
 
 [node name="PlayerSprite" type="Sprite2D" parent="Player"]
@@ -50,6 +69,30 @@ texture = ExtResource("4_rjvuy")
 
 [node name="PlayerHitbox" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CircleShape2D_svnoq")
+
+[node name="Particles" type="CPUParticles2D" parent="Player"]
+top_level = true
+z_index = 2
+amount = 25
+lifetime = 0.4
+texture = ExtResource("8_vudkh")
+emission_shape = 1
+emission_sphere_radius = 1.0
+spread = 180.0
+gravity = Vector2(-2500, 71)
+initial_velocity_min = 200.0
+initial_velocity_max = 210.1
+scale_amount_min = 0.5
+scale_amount_max = 0.5
+scale_amount_curve = SubResource("Curve_m6a0w")
+color = Color(0.8, 0.8, 0.8, 1)
+
+[node name="CoinCollected" type="AudioStreamPlayer" parent="Player"]
+stream = ExtResource("9_e2617")
+
+[node name="GameOver" type="AudioStreamPlayer" parent="Player"]
+process_mode = 3
+stream = ExtResource("10_ccs64")
 
 [node name="Walls" type="Node" parent="."]
 
@@ -99,3 +142,62 @@ theme_override_font_sizes/font_size = 60
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="GameOver" type="Control" parent="."]
+visible = false
+z_index = 10
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9_xqy0q")
+
+[node name="DarkBackground" type="ColorRect" parent="GameOver"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.784314)
+
+[node name="GameOverLabel" type="Label" parent="GameOver"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -715.5
+offset_top = 300.0
+offset_right = 715.5
+offset_bottom = 600.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("6_slmc6")
+theme_override_font_sizes/font_size = 200
+text = "Game Over"
+
+[node name="PlayAgainButton" type="Button" parent="GameOver"]
+process_mode = 3
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -221.0
+offset_top = 108.0
+offset_right = 221.0
+offset_bottom = 184.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("6_slmc6")
+theme_override_font_sizes/font_size = 60
+text = "Play Again"
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_ouvny")
+autoplay = true
+
+[connection signal="timeout" from="SpawnTimer" to="." method="_on_spawn_timer_timeout"]
+[connection signal="pressed" from="GameOver/PlayAgainButton" to="GameOver" method="_on_play_again_button_pressed"]
